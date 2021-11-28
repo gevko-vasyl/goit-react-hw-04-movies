@@ -1,14 +1,26 @@
+import { lazy, Suspense } from "react";
 import { NavLink, Route, Routes } from "react-router-dom";
-import Home from "./pages/Home/Home";
-import Movies from "./pages/Movies/Movies";
-import MovieDetailsPage from "./pages/MovieDetailsPage/MovieDetailsPage.jsx";
-import Cast from "./components/Cast/Cast";
+import Loader from "react-loader-spinner";
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
+
+const HomePage = lazy(
+  () => import("./pages/Home/Home") /*webpackChunkName: HomePage*/
+);
+const MoviesPage = lazy(
+  () => import("./pages/Movies/Movies") /*webpackChunkName: MoviesPage*/
+);
+const MovieDetailsPage = lazy(
+  () =>
+    import(
+      "./pages/MovieDetailsPage/MovieDetailsPage.jsx"
+    ) /*webpackChunkName: MovieDetailsPage*/
+);
 
 function App() {
   return (
     <div className="App">
       <header>
-        <ul>
+        <ul className="nav">
           <li>
             <NavLink to="/">Home</NavLink>
           </li>
@@ -17,13 +29,20 @@ function App() {
           </li>
         </ul>
       </header>
-
-      <Routes>
-        <Route path="/" element={<Home />} />
-        {/* <Route path='/home' element={<Home />} /> */}
-        <Route path="movies" element={<Movies />} />
-        <Route path="movies/:movieId*" element={<MovieDetailsPage />} />
-      </Routes>
+      <Suspense
+        fallback={
+          <div className="spinner">
+            <Loader type="TailSpin" color="#00BFFF" height={120} width={120} />
+          </div>
+        }
+      >
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="movies" element={<MoviesPage />} />
+          <Route path="movies/:movieId*" element={<MovieDetailsPage />} />
+          <Route path="/goit-react-hw-04-movies" element={<HomePage />} />
+        </Routes>
+      </Suspense>
     </div>
   );
 }

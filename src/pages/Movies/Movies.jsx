@@ -1,51 +1,47 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useLocation, useSearchParams } from "react-router-dom";
 import FilmList from "../../components/FilmList/FilmList";
-
-const API_KEY = "7062d2e046edcca7d00a725f5e0adc9c";
-
-const FetchFilmsByQuery = async (value) => {
-  const response = await axios.get(
-    `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=en-US&query=${value}&page=1&include_adult=false`
-  );
-  //   console.log(response);
-  return response.data.results;
-};
+import { FetchFilmsByQuery } from "../../services/api";
+import s from "./Movies.module.css";
 
 export default function Movies() {
-  const [query, setQuery] = useState("");
-  const [searchingFilms, setSearchingFilms] = useState([]);
-
+  const [searchMovies, setSearchMovies] = useState([]);
+  const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
-  const navigate = useNavigate();
-  const searchParam = new URLSearchParams(location.search).get("query");
-
+  console.log(searchParams);
   console.log(location);
-  console.log(searchParam);
+  const searchQuery = searchParams.get("movies") || "";
 
   useEffect(() => {
-    if (!searchParam ?? searchParam.trim()) return;
-    FetchFilmsByQuery(searchParam).then((data) => setSearchingFilms([...data]));
-  }, [searchParam]);
+    if (!searchQuery ?? searchQuery.trim()) return;
+    FetchFilmsByQuery(searchQuery).then((data) => setSearchMovies([...data]));
+  }, [searchQuery]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    navigate({ ...location, search: `query=${query}`, state: { from: 123 } });
-    setQuery("");
+    const query = e.target.search.value;
+    setSearchParams({ movies: query });
+    e.target.search.value = "";
   };
 
-  const handleInput = (e) => {
-    const { value } = e.target;
-    setQuery(value);
-  };
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <input type="text" value={query} onChange={handleInput} />
-        <button type="submit">Search</button>
+    <div className={s.container}>
+      <form className={s.form} onSubmit={handleSubmit}>
+        <input
+          autoComplete="off"
+          className={s.input}
+          type="text"
+          name="search"
+          placeholder="Search movie by name"
+        />
+        <button className={s.submit} type="submit">
+          Search
+        </button>
       </form>
-      <FilmList films={searchingFilms} />
+      <FilmList
+        films={searchMovies}
+        pathname={location.pathname + location.search}
+      />
     </div>
   );
 }

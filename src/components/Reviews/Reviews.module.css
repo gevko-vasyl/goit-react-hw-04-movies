@@ -1,0 +1,11 @@
+.list {
+  list-style: none;
+}
+.title {
+  text-align: center;
+  font-size: 36px;
+}
+.authorTitle {
+  font-size: 26px;
+  font-weight: bold;
+}
